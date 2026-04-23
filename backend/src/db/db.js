@@ -60,12 +60,18 @@ async function updatePricing(id, price) {
 // --- Customer Methods ---
 
 async function findCustomerByEmail(email) {
+    if (process.env.DEMO_MODE === 'true') {
+        return { id: 99, name: 'Demo User', email: email };
+    }
     const db = await getDb();
     const res = await db.query('SELECT * FROM customers WHERE email = $1', [email]);
     return res.rows[0];
 }
 
 async function createCustomer(name, email) {
+    if (process.env.DEMO_MODE === 'true') {
+        return { id: 99, name: name, email: email };
+    }
     const db = await getDb();
     const existing = await findCustomerByEmail(email);
     if (existing) {
@@ -88,6 +94,9 @@ async function getCustomerById(id) {
 // --- Order Methods ---
 
 async function createOrder(customerId, frameShape, frameColor, frameImageId, lensType, totalPrice, notes) {
+    if (process.env.DEMO_MODE === 'true') {
+        return Math.floor(Math.random() * 1000);
+    }
     const db = await getDb();
     const res = await db.query(
         `INSERT INTO orders (customer_id, frame_shape, frame_color, frame_image_id, lens_type, total_price, notes)
@@ -98,6 +107,7 @@ async function createOrder(customerId, frameShape, frameColor, frameImageId, len
 }
 
 async function createPrescription(orderId, eye, sph, cyl, axis, addPower, pd) {
+    if (process.env.DEMO_MODE === 'true') return;
     const db = await getDb();
     await db.query(
         `INSERT INTO prescriptions (order_id, eye, sph, cyl, axis, add_power, pd)
