@@ -2,14 +2,19 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-const pool = new Pool({
-    connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
-
+let pool = null;
 let initialized = false;
+
+function getPool() {
+    if (pool) return pool;
+    pool = new Pool({
+        connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL,
+        ssl: {
+            rejectUnauthorized: false
+        }
+    });
+    return pool;
+}
 
 // --- IN-MEMORY DEMO STORAGE ---
 const demoStore = {
@@ -36,7 +41,8 @@ async function getDb() {
 
     if (!initialized && (process.env.POSTGRES_URL || process.env.DATABASE_URL)) {
         try {
-            const client = await pool.connect();
+            const currentPool = getPool();
+            const client = await currentPool.connect();
             const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf-8');
             await client.query(schema);
             console.log('✅ Database initialized (Postgres)');
@@ -46,7 +52,7 @@ async function getDb() {
             console.error('⚠️ Database init skipped/failed:', err.message);
         }
     }
-    return pool;
+    return getPool();
 }
 
 // --- Pricing Methods ---

@@ -9,9 +9,6 @@ const { getDb } = require('./db/db');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Init DB
-getDb().catch(err => console.error('Failed to init DB:', err));
-
 // Middleware
 app.use(helmet({
     contentSecurityPolicy: {
@@ -26,7 +23,7 @@ app.use(helmet({
     },
 }));
 
-// CORS setup - Allow Vercel and Localhost
+// CORS setup
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:5174',
@@ -45,6 +42,7 @@ app.use(cors({
     },
     credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -71,8 +69,16 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
+// Start Server
+const server = app.listen(PORT, () => {
     console.log(`🚀 Owais Optics Backend running at http://localhost:${PORT}`);
+});
+
+// Keep process alive
+process.on('SIGTERM', () => {
+    server.close(() => {
+        console.log('Process terminated');
+    });
 });
 
 module.exports = app;
