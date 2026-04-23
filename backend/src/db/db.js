@@ -12,6 +12,13 @@ const pool = new Pool({
 let initialized = false;
 
 async function getDb() {
+    if (process.env.DEMO_MODE === 'true') {
+        return {
+            query: async () => ({ rows: [] }),
+            connect: async () => ({ query: async () => ({ rows: [] }), release: () => {} })
+        };
+    }
+
     if (!initialized) {
         const client = await pool.connect();
         try {
@@ -32,6 +39,14 @@ async function getDb() {
 // --- Pricing Methods ---
 
 async function getAllPricing() {
+    if (process.env.DEMO_MODE === 'true') {
+        return [
+            { id: 1, category: 'frame', name: 'Round', price: 1500 },
+            { id: 2, category: 'frame', name: 'Aviator', price: 2500 },
+            { id: 3, category: 'lens', name: 'Single Vision', price: 500 },
+            { id: 4, category: 'lens', name: 'Progressive', price: 2500 }
+        ];
+    }
     const db = await getDb();
     const res = await db.query('SELECT * FROM pricing ORDER BY category, name');
     return res.rows;

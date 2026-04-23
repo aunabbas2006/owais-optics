@@ -42,10 +42,8 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
-if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`🚀 Owais Optics Backend running at http://localhost:${PORT}`);
-    });
-}
+app.listen(PORT, () => {
+    console.log(`🚀 Owais Optics Backend running at http://localhost:${PORT}`);
+});
 
 module.exports = app;
