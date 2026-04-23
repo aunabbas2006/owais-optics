@@ -18,16 +18,45 @@ app.use(helmet({
         directives: {
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "blob:", "https:"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+            imgSrc: ["'self'", "data:", "blob:", "https:", "https://images.unsplash.com"],
             scriptSrc: ["'self'", "'unsafe-inline'"],
+            connectSrc: ["'self'", "https://*"],
         },
     },
 }));
-app.use(cors({ origin: true, credentials: true }));
+
+// CORS setup - Allow Vercel and Localhost
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'https://owais-optics.vercel.app',
+    /\.vercel\.app$/
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.some(o => typeof o === 'string' ? o === origin : o.test(origin))) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Health Check
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        demoMode: process.env.DEMO_MODE === 'true',
+        timestamp: new Date().toISOString()
+    });
+});
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
