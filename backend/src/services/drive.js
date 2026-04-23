@@ -8,34 +8,44 @@ let frameCacheTime = 0;
 const CACHE_TTL = 5 * 60 * 1000;
 
 const DEMO_FRAMES = [
-    { id: 'demo-1', name: 'Round_Black.jpg', shape: 'Round', color: 'Black', mimeType: 'image/jpeg' },
-    { id: 'demo-2', name: 'Round_Gold.jpg', shape: 'Round', color: 'Gold', mimeType: 'image/jpeg' },
-    { id: 'demo-3', name: 'Round_Silver.jpg', shape: 'Round', color: 'Silver', mimeType: 'image/jpeg' },
-    { id: 'demo-4', name: 'Aviator_Gold.jpg', shape: 'Aviator', color: 'Gold', mimeType: 'image/jpeg' },
-    { id: 'demo-5', name: 'Aviator_Black.jpg', shape: 'Aviator', color: 'Black', mimeType: 'image/jpeg' },
-    { id: 'demo-6', name: 'Aviator_Silver.jpg', shape: 'Aviator', color: 'Silver', mimeType: 'image/jpeg' },
-    { id: 'demo-7', name: 'Cat-Eye_Tortoise.jpg', shape: 'Cat-Eye', color: 'Tortoise', mimeType: 'image/jpeg' },
-    { id: 'demo-8', name: 'Cat-Eye_Black.jpg', shape: 'Cat-Eye', color: 'Black', mimeType: 'image/jpeg' },
-    { id: 'demo-9', name: 'Cat-Eye_Rose-Gold.jpg', shape: 'Cat-Eye', color: 'Rose Gold', mimeType: 'image/jpeg' },
-    { id: 'demo-10', name: 'Rectangle_Black.jpg', shape: 'Rectangle', color: 'Black', mimeType: 'image/jpeg' },
-    { id: 'demo-11', name: 'Rectangle_Blue.jpg', shape: 'Rectangle', color: 'Blue', mimeType: 'image/jpeg' },
-    { id: 'demo-12', name: 'Rectangle_Tortoise.jpg', shape: 'Rectangle', color: 'Tortoise', mimeType: 'image/jpeg' },
-    { id: 'demo-13', name: 'Wayfarer_Black.jpg', shape: 'Wayfarer', color: 'Black', mimeType: 'image/jpeg' },
-    { id: 'demo-14', name: 'Wayfarer_Tortoise.jpg', shape: 'Wayfarer', color: 'Tortoise', mimeType: 'image/jpeg' },
-    { id: 'demo-15', name: 'Rimless_Gold.jpg', shape: 'Rimless', color: 'Gold', mimeType: 'image/jpeg' },
-    { id: 'demo-16', name: 'Rimless_Silver.jpg', shape: 'Rimless', color: 'Silver', mimeType: 'image/jpeg' },
+    { id: 'demo-1', name: 'Round_Black.jpg', shape: 'Round', color: 'Black', thumbnailLink: 'https://images.unsplash.com/photo-1574258495973-f010dfbb5371?q=80&w=400&auto=format&fit=crop' },
+    { id: 'demo-2', name: 'Round_Gold.jpg', shape: 'Round', color: 'Gold', thumbnailLink: 'https://images.unsplash.com/photo-1591076482161-42ce6da69f67?q=80&w=400&auto=format&fit=crop' },
+    { id: 'demo-3', name: 'Round_Silver.jpg', shape: 'Round', color: 'Silver', thumbnailLink: 'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?q=80&w=400&auto=format&fit=crop' },
+    { id: 'demo-4', name: 'Aviator_Gold.jpg', shape: 'Aviator', color: 'Gold', thumbnailLink: 'https://images.unsplash.com/photo-1511499767390-90342f567517?q=80&w=400&auto=format&fit=crop' },
+    { id: 'demo-5', name: 'Aviator_Black.jpg', shape: 'Aviator', color: 'Black', thumbnailLink: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?q=80&w=400&auto=format&fit=crop' },
+    { id: 'demo-6', name: 'Aviator_Silver.jpg', shape: 'Aviator', color: 'Silver', thumbnailLink: 'https://images.unsplash.com/photo-1509100104048-73c19386e5c1?q=80&w=400&auto=format&fit=crop' },
+    { id: 'demo-7', name: 'Cat-Eye_Tortoise.jpg', shape: 'Cat-Eye', color: 'Tortoise', thumbnailLink: 'https://images.unsplash.com/photo-1508296695146-257a814070b4?q=80&w=400&auto=format&fit=crop' },
+    { id: 'demo-8', name: 'Cat-Eye_Black.jpg', shape: 'Cat-Eye', color: 'Black', thumbnailLink: 'https://images.unsplash.com/photo-1511499767390-90342f567517?q=80&w=400&auto=format&fit=crop' },
 ];
 
 function getDriveClient() {
     if (driveClient) return driveClient;
+    
+    let authOptions = {};
+    const credentialsEnv = process.env.GOOGLE_CREDENTIALS;
     const credentialsPath = path.join(__dirname, '..', '..', 'credentials.json');
-    if (!fs.existsSync(credentialsPath)) return null;
 
-    try {
-        const auth = new google.auth.GoogleAuth({
+    if (credentialsEnv) {
+        try {
+            authOptions = {
+                credentials: JSON.parse(credentialsEnv),
+                scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+            };
+        } catch (err) {
+            console.error('❌ GOOGLE_CREDENTIALS parse failed:', err.message);
+            return null;
+        }
+    } else if (fs.existsSync(credentialsPath)) {
+        authOptions = {
             keyFile: credentialsPath,
             scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-        });
+        };
+    } else {
+        return null;
+    }
+
+    try {
+        const auth = new google.auth.GoogleAuth(authOptions);
         driveClient = google.drive({ version: 'v3', auth });
         return driveClient;
     } catch (err) {

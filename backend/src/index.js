@@ -34,7 +34,8 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.some(o => typeof o === 'string' ? o === origin : o.test(origin))) {
+        // Allow localhost and Vercel
+        if (!origin || origin.startsWith('http://localhost') || allowedOrigins.some(o => typeof o === 'string' ? o === origin : o.test(origin))) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
