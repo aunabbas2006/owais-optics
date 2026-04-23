@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f8f8;
+  --text-primary: #111111;
+  --text-secondary: #4a4a4a;
+  --text-muted: #888888;
+  --border: #e0e0e0;
+  --accent: #111111;
+  --gold: #c5a059;
+}
+
+body {
+  @apply font-sans bg-white text-luxury-accent antialiased;
+}
+
+h1, h2, h3, h4, .serif {
+  @apply font-serif;
+}
+
+.nav-link {
+  @apply text-[13px] font-medium uppercase tracking-[0.1em] text-luxury-muted transition-colors duration-300 relative pb-1;
+}
+
+.nav-link::after {
+  content: '';
+  @apply absolute bottom-0 left-0 right-0 h-[1px] bg-luxury-accent scale-x-0 origin-right transition-transform duration-300;
+}
+
+.nav-link:hover::after, .nav-link.active::after {
+  @apply scale-x-100 origin-left;
+}
+
+.nav-link:hover {
+  @apply text-luxury-accent;
+}
+
+/* Page transitions */
+.page-enter {
+  @apply opacity-0 translate-y-[10px] animate-[fadeIn_0.8s_ease-out_forwards];
+}
+
+@keyframes fadeIn {
+  to {
+    @apply opacity-100 translate-y-0;
+  }
+}
